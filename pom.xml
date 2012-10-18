@@ -17,8 +17,13 @@
 
     <packaging>pom</packaging>
 
+    <properties>
+        <liquibase.version>2.0.5</liquibase.version>
+    </properties>
+
     <modules>
-        <module>extender</module>
+      <module>extender</module>
+      <module>features</module>
     </modules>
 
     <dependencyManagement>
@@ -38,7 +43,12 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>2.0.5</version>
+                <version>${liquibase.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.liquibase</groupId>
+                <artifactId>liquibase-osgi</artifactId>
+                <version>${liquibase.version}</version>
             </dependency>
             <!-- Test References -->
             <dependency>
