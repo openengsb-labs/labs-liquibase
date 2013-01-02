@@ -14,26 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
 import org.osgi.framework.Bundle;
 
-public class LiquibaseMigrator implements DatabaseMigrator {
+public interface MigrationCenterHead {
 
-    private LiquibaseMinion liquibaseMinion;
+    void registerBundleForMigration(Bundle bundle);
 
-    public LiquibaseMigrator(LiquibaseMinion liquibaseMinion) {
-        this.liquibaseMinion = liquibaseMinion;
-    }
-
-    @Override
-    public void migrateDatabaseUsingBlueprintInBundle(Bundle bundle) throws DatabaseMigrationException {
-        LiquibaseMigrationBlueprint liquibaseMigrationBlueprint = new LiquibaseMigrationBlueprint(bundle);
-        if (!liquibaseMigrationBlueprint.hasMigrationBlueprint()) {
-            return;
-        }
-        liquibaseMinion.migrate(liquibaseMigrationBlueprint);
-    }
-
+    void cancelBundleRegistration(Bundle bundle);
 }

@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <parent>
-        <groupId>org.openengsb</groupId>
-        <artifactId>openengsb-root</artifactId>
-        <version>33</version>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -19,12 +19,96 @@
 
     <properties>
         <liquibase.version>2.0.5</liquibase.version>
+        <slf4j.version>1.6.4</slf4j.version>
     </properties>
 
     <modules>
-      <module>extender</module>
-      <module>features</module>
+        <module>extender</module>
+        <module>features</module>
     </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.0</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <fork>true</fork>
+                    <meminitial>128m</meminitial>
+                    <maxmem>512m</maxmem>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.2.2</version>
+                <configuration>
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <pushChanges>false</pushChanges>
+                    <arguments>-Psonatype-oss-release -DpushChanges=false -Dgpg.useagent=true</arguments>
+                    <preparationGoals>clean install -Dmaven.test.skip=true</preparationGoals>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jasig.maven</groupId>
+                <artifactId>maven-notice-plugin</artifactId>
+                <version>1.0.4</version>
+                <configuration>
+                    <noticeTemplate>
+                        https://raw.github.com/openengsb/openengsb-framework/master/etc/notice/NOTICE.template
+                    </noticeTemplate>
+                    <licenseMapping>
+                        <param>
+                            https://raw.github.com/openengsb/openengsb-framework/master/etc/notice/license-mapping.xml
+                        </param>
+                    </licenseMapping>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.mycila.maven-license-plugin</groupId>
+                <artifactId>maven-license-plugin</artifactId>
+                <version>1.10.b1</version>
+                <configuration>
+                    <header>https://raw.github.com/openengsb/openengsb-root/master/etc/license/header.txt</header>
+                    <failIfMissing>true</failIfMissing>
+                    <aggregate>true</aggregate>
+                    <strictCheck>true</strictCheck>
+                    <excludes>
+                        <exclude>atlassian-ide-plugin.xml</exclude>
+                    </excludes>
+                    <mapping>
+                        <bnd>SCRIPT_STYLE</bnd>
+                        <drl>SCRIPT_STYLE</drl>
+                        <index>SCRIPT_STYLE</index>
+                        <gitignore>SCRIPT_STYLE</gitignore>
+                        <cfg>SCRIPT_STYLE</cfg>
+                        <wsdl>XML_STYLE</wsdl>
+                        <csproj>XML_STYLE</csproj>
+                        <rf>XML_STYLE</rf>
+                        <composite>SCRIPT_STYLE</composite>
+                        <config>XML_STYLE</config>
+                        <script>DOUBLESLASH_STYLE</script>
+                        <rule>SCRIPT_STYLE</rule>
+                    </mapping>
+                </configuration>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.3.7</version>
+                    <extensions>true</extensions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <dependencyManagement>
         <dependencies>
@@ -50,7 +134,18 @@
                 <artifactId>liquibase-osgi</artifactId>
                 <version>${liquibase.version}</version>
             </dependency>
-            <!-- Test References -->
+            <!-- LOG DEPENDENCIES -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <!-- TEST DEPENDENCIES -->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>

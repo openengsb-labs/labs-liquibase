@@ -26,8 +26,14 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Activator>org.openengsb.labs.liquibase.extender.internal.Activator</Bundle-Activator>
+                        <!-- Those additional dependencies are for some rare cases if using an old pax-wicket version... -->
                         <Import-Package>
                             liquibase.*,
+                            net.sf.cglib.proxy;version="[2,3)";resolution:=optional,
+                            net.sf.cglib.core;version="[2,3)";resolution:=optional,
+                            net.sf.cglib.reflect;version="[2,3)";resolution:=optional,
+                            org.ops4j.pax.wicket.api;resolution:=optional,
+                            org.ops4j.pax.wicket.util.proxy;resolution:=optional,
                             *
                         </Import-Package>
                     </instructions>
@@ -46,12 +52,17 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
         </dependency>
-        <!-- Liquibase References -->
+        <!-- LIQUIBASE DEPENDENCIES -->
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency>
-        <!-- Test References -->
+        <!-- LOGGING DEPENDENCIES -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <!-- TEST DEPENDENCIES -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

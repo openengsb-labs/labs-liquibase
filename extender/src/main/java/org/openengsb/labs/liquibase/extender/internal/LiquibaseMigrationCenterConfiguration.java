@@ -14,26 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
-public class DatabaseMigrationException extends Exception {
-    public DatabaseMigrationException() {
-    }
+import org.openengsb.labs.liquibase.extender.DatabaseMigrationException;
 
-    public DatabaseMigrationException(String message) {
-        super(message);
-    }
+public interface LiquibaseMigrationCenterConfiguration {
+    void register(Long bundleId, DatabaseMigrationBundle databaseMigrationBundle) throws DatabaseMigrationException;
 
-    public DatabaseMigrationException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public DatabaseMigrationException(Throwable cause) {
-        super(cause);
-    }
-
-    public DatabaseMigrationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
+    void cancelBundleRegistration(Long bundleId);
 }

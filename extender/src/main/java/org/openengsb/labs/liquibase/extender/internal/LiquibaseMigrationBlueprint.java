@@ -14,9 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
+import liquibase.changelog.ChangeLogParameters;
+import liquibase.changelog.DatabaseChangeLog;
+import liquibase.exception.LiquibaseException;
+import liquibase.parser.ChangeLogParserFactory;
 import liquibase.resource.ResourceAccessor;
 import org.osgi.framework.Bundle;
 
@@ -27,7 +30,7 @@ import java.util.Enumeration;
 
 public class LiquibaseMigrationBlueprint {
 
-    private static final String LIQUIBASE_MASTER_XML_DEFAULT_PATH = "OSGI-INF/liquibase/master.xml";
+    // private static final String LIQUIBASE_MASTER_XML_DEFAULT_PATH = "OSGI-INF/liquibase/master.xml";
 
     private Bundle bundle;
 
@@ -36,15 +39,35 @@ public class LiquibaseMigrationBlueprint {
     }
 
     public boolean hasMigrationBlueprint() {
-        return bundle.getEntry(LIQUIBASE_MASTER_XML_DEFAULT_PATH) != null;
+        return bundle.getHeaders().get(ManifestParameters.LIQUIBASE_PERSITENCE) != null;
     }
 
-    public String loadMigrationBlueprint() {
-        return LIQUIBASE_MASTER_XML_DEFAULT_PATH;
+    public DatabaseChangeLog loadDatabaseChangelogWith(ChangeLogParameters changeLogParameters) throws LiquibaseException {
+        if (!hasMigrationBlueprint()) {
+            throw new IllegalStateException("Couldn't load changelog without liquibase manifest header");
+        }
+        return ChangeLogParserFactory.getInstance().getParser(
+                liquibaseFilePath(), loadResourceAccessorForBlueprint()).parse(
+                liquibaseFilePath(), changeLogParameters, loadResourceAccessorForBlueprint());
     }
 
+    private String liquibaseFilePath() {
+        return bundle.getHeaders().get(ManifestParameters.LIQUIBASE_PERSITENCE).toString();
+    }
 
-    public ResourceAccessor accessMigrationResources() {
+    public long startLevel() {
+        Object startLvl = bundle.getHeaders().get(ManifestParameters.LIQUIBASE_START_LEVEL);
+        if (startLvl == null || startLvl.toString().length() == 0) {
+            return bundle.getBundleId();
+        }
+        return Long.parseLong(startLvl.toString());
+    }
+
+    public String getName() {
+        return bundle.getSymbolicName();
+    }
+
+    private ResourceAccessor loadResourceAccessorForBlueprint() {
         return new ResourceAccessor() {
             @Override
             public InputStream getResourceAsStream(String file) throws IOException {
@@ -75,6 +98,11 @@ public class LiquibaseMigrationBlueprint {
                 };
             }
         };
+    }
+
+    private interface ManifestParameters {
+        String LIQUIBASE_PERSITENCE = "Liquibase-Persistence";
+        String LIQUIBASE_START_LEVEL = "Liquibase-StartLevel";
     }
 
 }

@@ -14,35 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.SynchronousBundleListener;
+import org.osgi.util.tracker.BundleTracker;
 
-public class MigrationBundleListener implements SynchronousBundleListener {
+public class MigrationBundleListener extends BundleTracker {
 
-    private final DatabaseMigrator databaseMigrator;
+    private final MigrationCenterHead migrationCenterHead;
 
-    public MigrationBundleListener(DatabaseMigrator databaseMigrator) {
-        this.databaseMigrator = databaseMigrator;
+    public MigrationBundleListener(BundleContext context, MigrationCenterHead migrationCenterHead) {
+        super(context, Bundle.ACTIVE, null);
+        this.migrationCenterHead = migrationCenterHead;
     }
 
     @Override
-    public void bundleChanged(BundleEvent event) {
-        if (BundleEvent.STARTED != event.getType()) {
-            return;
-        }
-        try {
-            databaseMigrator.migrateDatabaseUsingBlueprintInBundle(event.getBundle());
-        } catch (DatabaseMigrationException e) {
-            try {
-                event.getBundle().stop();
-            } catch (BundleException e1) {
-                throw new IllegalArgumentException("Since bundle couldn't be stoped better abort the process.");
-            }
-        }
+    public Object addingBundle(Bundle bundle, BundleEvent event) {
+        migrationCenterHead.registerBundleForMigration(bundle);
+        return super.addingBundle(bundle, event);
     }
 
+    @Override
+    public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
+        migrationCenterHead.cancelBundleRegistration(bundle);
+        super.removedBundle(bundle, event, object);
+    }
 }

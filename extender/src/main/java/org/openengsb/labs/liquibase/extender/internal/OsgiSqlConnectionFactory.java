@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
 import org.osgi.framework.BundleContext;
@@ -25,11 +24,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import static java.lang.String.format;
-
 public class OsgiSqlConnectionFactory implements SqlConnectionFactory {
-
-    public static final String JNDI_SERVICE_NAME = "osgi.jndi.service.name";
 
     private final BundleContext liquibaseBundleContext;
 
@@ -46,7 +41,7 @@ public class OsgiSqlConnectionFactory implements SqlConnectionFactory {
         } else {
             try {
                 ServiceReference[] serviceReferences = liquibaseBundleContext.getServiceReferences(
-                        DataSource.class.getName(), format("(%s=%s)", JNDI_SERVICE_NAME, connectionName));
+                        DataSource.class.getName(), "(osgi.jndi.service.name=" + connectionName+ ")");
                 if (serviceReferences == null || serviceReferences.length != 1) {
                     throw new IllegalStateException("More or no service references found");
                 }

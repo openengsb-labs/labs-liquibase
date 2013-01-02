@@ -14,29 +14,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
+import org.openengsb.labs.liquibase.extender.DatabaseMigrationCenter;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 
 public class Activator implements BundleActivator {
 
     private MigrationBundleListener bundleListener;
+    private ServiceRegistration databaseMigrationCenterRegistration;
 
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         LiquibaseConfigurationReader reader = new ConfigurationAdminBackedLiquibaseConfigurationReader(bundleContext);
+
         SqlConnectionFactory sqlConnectionFactory = new OsgiSqlConnectionFactory(bundleContext);
-        LiquibaseUpdateMinion minion = new LiquibaseUpdateMinion(reader, sqlConnectionFactory);
-        LiquibaseMigrator migrator = new LiquibaseMigrator(minion);
-        bundleListener = new MigrationBundleListener(migrator);
-        bundleContext.addBundleListener(bundleListener);
+
+        LiquibaseMigrationBundleFactory liquibaseMigrationBundleFactory
+                = new LiquibaseMigrationBundleFactory(reader, sqlConnectionFactory);
+
+        LiquibaseDatabaseMigrationCenter liquibaseDatabaseMigrationCenter = new LiquibaseDatabaseMigrationCenter(reader);
+
+        LiquibaseMigrationCenterHead migrationCenterHeader = new LiquibaseMigrationCenterHead(
+                liquibaseMigrationBundleFactory, liquibaseDatabaseMigrationCenter);
+        databaseMigrationCenterRegistration =
+                bundleContext.registerService(DatabaseMigrationCenter.class.getName(), liquibaseDatabaseMigrationCenter, null);
+
+        bundleListener = new MigrationBundleListener(bundleContext, migrationCenterHeader);
+        bundleListener.open();
     }
 
     @Override
     public void stop(BundleContext bundleContext) throws Exception {
-        bundleContext.removeBundleListener(bundleListener);
+        databaseMigrationCenterRegistration.unregister();
+        bundleListener.close();
     }
 
 }

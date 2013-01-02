@@ -14,72 +14,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleEvent;
+import org.osgi.framework.BundleContext;
 
 public class MigrationBundleListenerTest {
 
     private final JUnit4Mockery context = new JUnit4Mockery();
-    private final DatabaseMigrator databaseMigrator = context.mock(DatabaseMigrator.class);
-    private final Bundle bundle = context.mock(Bundle.class);
+
+    private final MigrationCenterHead migrationCenterHead = context.mock(MigrationCenterHead.class);
+    private final BundleContext bundleContext = context.mock(BundleContext.class);
+
+    private final Bundle aBundle = context.mock(Bundle.class);
+
     private final MigrationBundleListener migrationBundleListener =
-            new MigrationBundleListener(databaseMigrator);
+            new MigrationBundleListener(bundleContext, migrationCenterHead);
 
     @Test
-    public void testDoesNothingIfEventTypeIsNotEqualStarted() throws Exception {
+    public void testCallsRegisterBundleForMigrationOnEachBundle() throws Exception {
         context.checking(new Expectations() {
             {
-                never(databaseMigrator);
-                never(bundle);
+                oneOf(migrationCenterHead).registerBundleForMigration(aBundle);
             }
         });
 
-        migrationBundleListener.bundleChanged(aBundleEventWithState(BundleEvent.INSTALLED));
-        migrationBundleListener.bundleChanged(aBundleEventWithState(BundleEvent.LAZY_ACTIVATION));
-        migrationBundleListener.bundleChanged(aBundleEventWithState(BundleEvent.STARTING));
-        migrationBundleListener.bundleChanged(aBundleEventWithState(BundleEvent.STOPPING));
+        migrationBundleListener.addingBundle(aBundle, null);
 
         context.assertIsSatisfied();
     }
 
     @Test
-    public void testCallsMigrationOnEveryStartedBundle() throws Exception {
+    public void testCallsUnregisterBundleForEachStoppingBundle() throws Exception {
         context.checking(new Expectations() {
             {
-                oneOf(databaseMigrator).migrateDatabaseUsingBlueprintInBundle(bundle);
-
-                never(bundle).stop();
+                oneOf(migrationCenterHead).cancelBundleRegistration(aBundle);
             }
         });
 
-        migrationBundleListener.bundleChanged(aBundleEventWithState(BundleEvent.STARTED));
+        migrationBundleListener.removedBundle(aBundle, null, null);
 
         context.assertIsSatisfied();
     }
 
-    @Test
-    public void testStopsABundleIfMigrationFails() throws Exception {
-        context.checking(new Expectations() {
-            {
-                oneOf(databaseMigrator).migrateDatabaseUsingBlueprintInBundle(bundle);
-                will(throwException(new DatabaseMigrationException()));
-
-                oneOf(bundle).stop();
-            }
-        });
-
-        migrationBundleListener.bundleChanged(aBundleEventWithState(BundleEvent.STARTED));
-
-        context.assertIsSatisfied();
-    }
-
-    private BundleEvent aBundleEventWithState(Integer state) {
-        return new BundleEvent(state, bundle);
-    }
 }

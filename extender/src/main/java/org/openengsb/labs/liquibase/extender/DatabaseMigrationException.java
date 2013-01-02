@@ -14,11 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.openengsb.labs.liquibase.extender.internal;
+package org.openengsb.labs.liquibase.extender;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+public class DatabaseMigrationException extends Exception {
+    public DatabaseMigrationException() {
+    }
 
-public interface SqlConnectionFactory {
-    Connection loadConnection(String connectionName) throws SQLException;
+    public DatabaseMigrationException(String message) {
+        super(message);
+    }
+
+    public DatabaseMigrationException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public DatabaseMigrationException(Throwable cause) {
+        super(cause);
+    }
+
+    public DatabaseMigrationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

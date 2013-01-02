@@ -14,10 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
-public interface LiquibaseMinion {
+import org.openengsb.labs.liquibase.extender.DatabaseMigrationException;
+import org.openengsb.labs.liquibase.extender.MigrationDescription;
 
-    public void migrate(LiquibaseMigrationBlueprint liquibaseMigrationBlueprint) throws DatabaseMigrationException;
+/**
+ * It's expected that a list of Database Migration Bundles automatically sort according to their start lvl
+ */
+public interface DatabaseMigrationBundle<Type> extends Comparable<Type> {
+    boolean isMigrationRequired() throws DatabaseMigrationException;
+
+    void executeMigration() throws DatabaseMigrationException;
+
+    MigrationDescription describeMigrations() throws DatabaseMigrationException;
 }

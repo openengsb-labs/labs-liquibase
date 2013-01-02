@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
 import org.osgi.framework.BundleContext;
@@ -26,7 +25,7 @@ import java.io.IOException;
 import java.util.Dictionary;
 
 public class ConfigurationAdminBackedLiquibaseConfigurationReader implements LiquibaseConfigurationReader {
-    public static final String SETTINGS_PID = "at.sup.resourcex.liquibase";
+    public static final String SETTINGS_PID = "org.openengsb.labs.liquibase";
     private BundleContext bundleContext;
 
     public ConfigurationAdminBackedLiquibaseConfigurationReader(BundleContext bundleContext) {

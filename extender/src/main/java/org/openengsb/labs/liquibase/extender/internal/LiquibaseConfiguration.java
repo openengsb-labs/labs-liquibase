@@ -14,49 +14,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
+
+import liquibase.util.StringUtils;
 
 import java.util.*;
 
 public class LiquibaseConfiguration {
     public static final Boolean USE_LIQUIBASE_DEFAULT_VALUE = true;
-    public static final Boolean SUCCESS_REQUIRED_DEFAULT_VALUE = true;
     public static final String SCHEMA_NAME_DEFAULT_VALUE = "public";
     public static final String CONTEXTS_DEFAULT_VALUE = "";
     public static final String DATASOURCE_DEFAULT_VALUE = null;
+    public static final String LOG_LVL_DEFAULT_VALUE = "SEVERE";
 
-    public static final String SUCCESS_REQUIRED_ID = "successRequired";
     public static final String USE_LIQUIBASE_ID = "useLiquibase";
     public static final String SCHEMA_NAME_ID = "defaultSchema";
     public static final String CONTEXTS_ID = "contexts";
     public static final String PARAMTERS_ID = "parameter.";
     public static final String DATASOURCE_ID = "datasource";
+    public static final String LOG_LVL = "loglevel";
 
-    private final boolean successRequired;
     private final boolean shouldLiquibaseBeApplied;
     private final String defaultSchemaName;
     private final String contexts;
     private final String dataSource;
+    private final String logLevel;
 
     private final List<Map.Entry<String, Object>> parameters;
 
     public LiquibaseConfiguration() {
-        this.successRequired = SUCCESS_REQUIRED_DEFAULT_VALUE;
         this.shouldLiquibaseBeApplied = USE_LIQUIBASE_DEFAULT_VALUE;
         this.defaultSchemaName = SCHEMA_NAME_DEFAULT_VALUE;
         this.contexts = CONTEXTS_DEFAULT_VALUE;
         this.dataSource = DATASOURCE_DEFAULT_VALUE;
+        this.logLevel = LOG_LVL_DEFAULT_VALUE;
         this.parameters = new ArrayList<Map.Entry<String, Object>>();
     }
 
     public LiquibaseConfiguration(Dictionary<?, ?> databaseConfiguration) {
-        Object successRequiredFlag = databaseConfiguration.get(LiquibaseConfiguration.SUCCESS_REQUIRED_ID);
-        if (successRequiredFlag == null) {
-            successRequired = LiquibaseConfiguration.SUCCESS_REQUIRED_DEFAULT_VALUE;
-        } else {
-            successRequired = Boolean.valueOf(successRequiredFlag.toString());
-        }
         Object useLiquibaseFlag = databaseConfiguration.get(LiquibaseConfiguration.USE_LIQUIBASE_ID);
         if (useLiquibaseFlag == null) {
             shouldLiquibaseBeApplied = LiquibaseConfiguration.USE_LIQUIBASE_DEFAULT_VALUE;
@@ -81,6 +76,12 @@ public class LiquibaseConfiguration {
         } else {
             this.dataSource = (String) datasource;
         }
+        Object logLevel = databaseConfiguration.get(LiquibaseConfiguration.LOG_LVL);
+        if (logLevel == null) {
+            this.logLevel = LiquibaseConfiguration.LOG_LVL_DEFAULT_VALUE;
+        } else {
+            this.logLevel = (String) logLevel;
+        }
         ArrayList<Map.Entry<String, Object>> entries = new ArrayList<Map.Entry<String, Object>>();
         Enumeration<?> keys = databaseConfiguration.keys();
         if (keys == null) {
@@ -97,10 +98,6 @@ public class LiquibaseConfiguration {
         }
     }
 
-    public boolean isSuccessRequired() {
-        return successRequired;
-    }
-
     public boolean isShouldLiquibaseBeApplied() {
         return shouldLiquibaseBeApplied;
     }
@@ -113,8 +110,22 @@ public class LiquibaseConfiguration {
         return contexts;
     }
 
+    public List<String> getSplittedContexts() {
+        return StringUtils.splitAndTrim(StringUtils.trimToNull(getContexts()), ",");
+    }
+
+    public String[] getSplittedContextsAsArray() {
+        return getSplittedContexts() != null ?
+                getSplittedContexts().toArray(new String[getSplittedContexts().size()]) :
+                new String[0];
+    }
+
     public String getDataSource() {
         return dataSource;
+    }
+
+    public String getLogLvl() {
+        return logLevel;
     }
 
     public List<Map.Entry<String, Object>> getParameters() {

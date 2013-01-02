@@ -14,13 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.openengsb.labs.liquibase.extender.internal;
 
-import org.osgi.framework.Bundle;
-
-public interface DatabaseMigrator {
-
-    void migrateDatabaseUsingBlueprintInBundle(Bundle bundle) throws DatabaseMigrationException;
-
+public interface DatabaseMigrationBundleFactory {
+    public DatabaseMigrationBundle createMigrationBundle(LiquibaseMigrationBlueprint liquibaseMigrationBlueprint);
 }
