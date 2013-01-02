@@ -105,28 +105,28 @@ org.openengsb.labs.liquibase.extender.DatabaseMigrationCenter service available 
 
 <pre>
 /**
-     * Checks all available liquibase files and compare them with the current database. If any differences
-     * are found this method returns true. By default this method only checks once if a migration is required
-     * (this allows to check every time a specific service is called or a web page should be displayed). Some events
-     * require this method to reevaluate anyhow. E.g. if a new bundle is installed/uninstalled.
-     */
-    boolean isMigrationRequired() throws DatabaseMigrationException;
+ * Checks all available liquibase files and compare them with the current database. If any differences
+ * are found this method returns true. By default this method only checks once if a migration is required
+ * (this allows to check every time a specific service is called or a web page should be displayed). Some events
+ * require this method to reevaluate anyhow. E.g. if a new bundle is installed/uninstalled.
+ */
+boolean isMigrationRequired() throws DatabaseMigrationException;
 
-    /**
-     * There are situations when the automatic refresh algorithm in the #isMigrationRequired method isn't enough;
-     * one example is if you delete the md5sums in the database itself. In that (or a similar) case simply call this
-     * method. The next #isMigrationRequired call will force a reevaluation.
-     */
-    void forceMigrationRevaluation();
+/**
+  * There are situations when the automatic refresh algorithm in the #isMigrationRequired method isn't enough;
+  * one example is if you delete the md5sums in the database itself. In that (or a similar) case simply call this
+  * method. The next #isMigrationRequired call will force a reevaluation.
+  */
+void forceMigrationRevaluation();
 
-    /**
-     * This call executes all liquibase changes not already applied.
-     */
-    void executeMigration() throws DatabaseMigrationException;
+/**
+ * This call executes all liquibase changes not already applied.
+ */
+void executeMigration() throws DatabaseMigrationException;
 
-    /**
-     * This method can be used to display all entries in all liquibase.xml files AND if they're already applied
-     * to the database or not.
-     */
-    MigrationDescription printMigrationDescription() throws DatabaseMigrationException;
+/**
+ * This method can be used to display all entries in all liquibase.xml files AND if they're already applied
+ * to the database or not.
+ */
+MigrationDescription printMigrationDescription() throws DatabaseMigrationException;
 </pre>
