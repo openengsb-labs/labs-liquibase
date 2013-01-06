@@ -1,0 +1,17 @@
+language: java
+notifications:
+  email:
+      recipients:
+          - openengsb-notification@googlegroups.com
+      on_success: [change]
+      on_failure: [always]
+
+env:
+    global:
+        - SONATYPE_USERNAME=pieber
+        - secure: "OWpfmMpNaMqpleGMiZ/eW3cV/mZMGkbW1Mb7yZly5HHgnwFiUlhOzvN31vXi\nVqpTb63XFoH4zgAtm9658X01AArvXUVlJX2CrZs9nE3DYoudYbDp0etkfWMn\nWwtfgnDzdUvDeCCiOhBm6MoYUpiBi56q3Tr9uQRqRRaJYamMAvE="
+
+after_success:
+  - python etc/travis/addServer.py
+  - chmod -R 777 etc/travis/deploy
+  - etc/travis/deploy
