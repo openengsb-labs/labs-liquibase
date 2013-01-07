@@ -32,6 +32,8 @@
         <configuration>
           <useDefaultDelimiters>false</useDefaultDelimiters>
           <delimiters>
+            <!--suppress MavenModelInspection -->
+            <!-- This is a configuration not a property acess; don't scan for it -->
             <delimiter>${*}</delimiter>
           </delimiters>
         </configuration>
