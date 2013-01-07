@@ -1,3 +1,11 @@
+Liquibase OSGi Support
+=====================
+
+The purpose of this lab is to provide the best Liquibase Support in OSGi possible. Right now "only" automatic and service 
+based migration is supported; but shell based updates, reverts, ... are planned too.
+
+[![Build Status](https://travis-ci.org/openengsb-labs/labs-liquibase.png?branch=master)](https://travis-ci.org/openengsb-labs/labs-liquibase)
+
 How to build
 ====================
 * Install JDK 7 or higher
