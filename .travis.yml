@@ -16,4 +16,4 @@ after_success:
   - wget https://raw.github.com/openengsb/openengsb-root/master/etc/travis/deploy
   - python addServer.py
   - chmod -R 777 deploy
-  - deploy
+  - ./deploy
