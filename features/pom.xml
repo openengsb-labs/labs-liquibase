@@ -48,6 +48,22 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.karaf.tooling</groupId>
+        <artifactId>features-maven-plugin</artifactId>
+        <version>2.3.0</version>
+        <executions>
+          <execution>
+            <id>create-kar</id>
+            <goals>
+              <goal>create-kar</goal>
+            </goals>
+            <configuration>
+              <featuresFile>${project.build.directory}/classes/features.xml</featuresFile>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
         <executions>
