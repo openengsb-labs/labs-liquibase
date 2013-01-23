@@ -22,19 +22,14 @@ import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
-import liquibase.database.structure.Table;
 import liquibase.exception.DatabaseException;
 import liquibase.lockservice.LockService;
 import liquibase.logging.LogFactory;
 import liquibase.logging.LogLevel;
-import liquibase.snapshot.DatabaseSnapshotGeneratorFactory;
 import org.openengsb.labs.liquibase.extender.DatabaseMigrationException;
 import org.openengsb.labs.liquibase.extender.MigrationDescription;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
@@ -136,52 +131,16 @@ public class LiquibaseMigrationBundleFactory implements DatabaseMigrationBundleF
 
             database.reset();
 
-            if (tryToCheckForMetaPermissions(database)) {
-                database.checkDatabaseChangeLogTable(true, changeLog, config.getSplittedContextsAsArray());
-                if (!LockService.getInstance(database).hasChangeLogLock()) {
-                    database.checkDatabaseChangeLogLockTable();
-                }
+            database.checkDatabaseChangeLogTable(true, changeLog, config.getSplittedContextsAsArray());
+            if (!LockService.getInstance(database).hasChangeLogLock()) {
+                database.checkDatabaseChangeLogLockTable();
             }
+
             changeLog.validate(database, config.getContexts());
             List<ChangeSet> unranChangeSetList = changeLog.getChangeSets();
             return command.executeCommand(unranChangeSetList, database, changeLog);
         } catch (Exception e) {
             throw new DatabaseMigrationException(e);
-        }
-    }
-
-    private boolean tryToCheckForMetaPermissions(Database database) throws SQLException, DatabaseException {
-        Table databaseChangeLogTable =
-                DatabaseSnapshotGeneratorFactory.getInstance().getGenerator(database).getDatabaseChangeLogTable(database);
-        if (databaseChangeLogTable != null) {
-            System.out.println("Metadata access allowed; check tables regularly");
-            return true;
-        } else {
-            // now we've to choose: is the permission not sufficient or is the table really missing
-            Connection underlyingConnection = ((JdbcConnection) database.getConnection()).getUnderlyingConnection();
-            Statement statement = underlyingConnection.createStatement();
-            try {
-                // fuck you oracle; for oracle we need permissions to read ALL_TABLES -.-
-                ResultSet resultSet = statement.executeQuery("SELECT * FROM ALL_TABLES WHERE TNAME='DATABASECHANGELOG'");
-                if (resultSet.next()) {
-                    System.out.println("the tables actually exist; so hope that nothing needs to be created since " +
-                            "we've no permissions to metadata at all");
-                    return false;
-                } else {
-                    System.out.println("The tables does not exist in ALL_TABLES; we need to take the gamble to create them");
-                    return true;
-                }
-            } catch (Exception e) {
-                try {
-                    ResultSet resultSet = statement.executeQuery("SELECT * FROM +  database.getDatabaseChangeLogTableName()");
-                    System.out.println("The tables actually exist; let's give it a gamle and hope we've nothing to " +
-                            "change with admin permissions");
-                    return false;
-                } catch (Exception inner) {
-                    System.out.println("The tables does not exist; let's hope we've the permissions to create them...");
-                    return true;
-                }
-            }
         }
     }
 
