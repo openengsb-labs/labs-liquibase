@@ -22,6 +22,12 @@
         <slf4j.version>1.6.4</slf4j.version>
     </properties>
 
+    <scm>
+      <connection>scm:git:git://github.com/openengsb-labs/labs-liquibase.git</connection>
+      <developerConnection>scm:git:git@github.com:openengsb-labs/labs-liquibase.git</developerConnection>
+      <url>http://github.com/openengsb-labs/labs-liquibase</url>
+    </scm>
+
     <modules>
         <module>extender</module>
         <module>features</module>
