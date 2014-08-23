@@ -16,15 +16,20 @@
  */
 package org.openengsb.labs.liquibase.extender.internal;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.sql.DataSource;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class OsgiSqlConnectionFactory implements SqlConnectionFactory {
+
+    private static final int WAIT_FOR_DATABASE_TIMEOUT = 60000;
 
     private final BundleContext liquibaseBundleContext;
 
@@ -34,31 +39,30 @@ public class OsgiSqlConnectionFactory implements SqlConnectionFactory {
 
     @Override
     public Connection loadConnection(String connectionName) throws SQLException {
-        ServiceReference serviceReference = null;
-        if (connectionName == null) {
-            serviceReference = liquibaseBundleContext.getServiceReference(
-                    DataSource.class.getName());
-        } else {
-            try {
-                ServiceReference[] serviceReferences = liquibaseBundleContext.getServiceReferences(
-                        DataSource.class.getName(), "(osgi.jndi.service.name=" + connectionName+ ")");
-                if (serviceReferences == null || serviceReferences.length != 1) {
-                    throw new IllegalStateException("More or no service references found");
-                }
-                serviceReference = serviceReferences[0];
-            } catch (InvalidSyntaxException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-        if (serviceReference == null) {
-            throw new IllegalStateException("No service could be retrieved");
-        }
-        Connection connection = null;
+        ServiceTracker serviceTracker = initializeServiceTracker(connectionName);
+        serviceTracker.open();
         try {
-            connection = ((DataSource) liquibaseBundleContext.getService(serviceReference)).getConnection();
+            return ((DataSource) serviceTracker.waitForService(WAIT_FOR_DATABASE_TIMEOUT)).getConnection();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
         } finally {
-            liquibaseBundleContext.ungetService(serviceReference);
+            serviceTracker.close();
         }
-        return connection;
+    }
+
+    private ServiceTracker initializeServiceTracker(String connectionName) {
+        if (connectionName == null) {
+            return new ServiceTracker(liquibaseBundleContext, DataSource.class.getName(), null);
+        }
+        try {
+            Filter filter = FrameworkUtil.createFilter(String.format("(&(%s=%s)(%s=%s))",
+                            Constants.OBJECTCLASS, DataSource.class.getName(),
+                            "osgi.jndi.service.name", connectionName)
+            );
+            return new ServiceTracker(liquibaseBundleContext, filter, null);
+        } catch (InvalidSyntaxException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
