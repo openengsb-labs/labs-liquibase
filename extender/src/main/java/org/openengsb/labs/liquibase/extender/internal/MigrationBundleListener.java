@@ -16,9 +16,6 @@
  */
 package org.openengsb.labs.liquibase.extender.internal;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleEvent;
@@ -28,32 +25,20 @@ public class MigrationBundleListener extends BundleTracker {
 
     private final MigrationCenterHead migrationCenterHead;
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
     public MigrationBundleListener(BundleContext context, MigrationCenterHead migrationCenterHead) {
         super(context, Bundle.ACTIVE, null);
         this.migrationCenterHead = migrationCenterHead;
     }
 
     @Override
-    public Object addingBundle(final Bundle bundle, BundleEvent event) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                migrationCenterHead.registerBundleForMigration(bundle);
-            }
-        });
+    public Object addingBundle(Bundle bundle, BundleEvent event) {
+        migrationCenterHead.registerBundleForMigration(bundle);
         return super.addingBundle(bundle, event);
     }
 
     @Override
-    public void removedBundle(final Bundle bundle, BundleEvent event, Object object) {
-        executorService.submit(new Runnable() {
-            @Override
-            public void run() {
-                migrationCenterHead.cancelBundleRegistration(bundle);
-            }
-        });
+    public void removedBundle(Bundle bundle, BundleEvent event, Object object) {
+        migrationCenterHead.cancelBundleRegistration(bundle);
         super.removedBundle(bundle, event, object);
     }
 }
