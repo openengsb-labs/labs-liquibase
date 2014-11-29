@@ -26,7 +26,7 @@ public class MigrationBundleListener extends BundleTracker {
     private final MigrationCenterHead migrationCenterHead;
 
     public MigrationBundleListener(BundleContext context, MigrationCenterHead migrationCenterHead) {
-        super(context, Bundle.ACTIVE, null);
+        super(context, Bundle.STARTING, null);
         this.migrationCenterHead = migrationCenterHead;
     }
 
@@ -41,4 +41,5 @@ public class MigrationBundleListener extends BundleTracker {
         migrationCenterHead.cancelBundleRegistration(bundle);
         super.removedBundle(bundle, event, object);
     }
+
 }
