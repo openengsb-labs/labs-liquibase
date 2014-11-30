@@ -3,7 +3,7 @@
 ## v0.1.1 2014-11-30
 
 * [FIX] #3 Concurrency issue
-  [FIX] Upgrade various maven plugins helping with the release
+* [FIX] Upgrade various maven plugins helping with the release
 
 ## v0.1.0 2013-01-24
 
