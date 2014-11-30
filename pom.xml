@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openengsb.labs.liquibase</groupId>
     <artifactId>liquibase-root</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.1.1</version>
 
     <name>Liquibase OSGi Integration Framework :: Root</name>
 
@@ -25,7 +25,8 @@
       <connection>scm:git:git://github.com/openengsb-labs/labs-liquibase.git</connection>
       <developerConnection>scm:git:git@github.com:openengsb-labs/labs-liquibase.git</developerConnection>
       <url>http://github.com/openengsb-labs/labs-liquibase</url>
-    </scm>
+      <tag>v0.1.1</tag>
+  </scm>
 
     <modules>
         <module>extender</module>
