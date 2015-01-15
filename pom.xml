@@ -17,7 +17,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <liquibase.version>2.0.5</liquibase.version>
+        <liquibase.version>3.3.0</liquibase.version>
         <slf4j.version>1.7.7</slf4j.version>
     </properties>
 
@@ -123,12 +123,12 @@
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
-                <version>4.2.0</version>
+                <version>5.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
-                <version>4.2.0</version>
+                <version>5.0.0</version>
             </dependency>
             <!-- Liquibase References -->
             <dependency>

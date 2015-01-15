@@ -16,6 +16,11 @@
  */
 package org.openengsb.labs.liquibase.extender.internal;
 
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Map;
+
+import liquibase.Contexts;
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
@@ -24,14 +29,11 @@ import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.lockservice.LockService;
+import liquibase.lockservice.LockServiceFactory;
 import liquibase.logging.LogFactory;
 import liquibase.logging.LogLevel;
 import org.openengsb.labs.liquibase.extender.DatabaseMigrationException;
 import org.openengsb.labs.liquibase.extender.MigrationDescription;
-
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
 
 import static org.openengsb.labs.liquibase.extender.MigrationDescription.aMigrationDescription;
 
@@ -99,12 +101,20 @@ public class LiquibaseMigrationBundleFactory implements DatabaseMigrationBundleF
                     for (ChangeSet changeSet : unranChangeSetList) {
                         if (database.getRanChangeSet(changeSet) == null) {
                             migrationDescription.newElement(
-                                    migrationBlueprint.getName(), changeSet.getId(), changeSet.getAuthor(),
-                                    changeSet.getContexts(), false);
+                                    migrationBlueprint.getName(),
+                                    changeSet.getId(),
+                                    changeSet.getAuthor(),
+                                    changeSet.getContexts().getContexts(),
+                                    false
+                            );
                         } else {
                             migrationDescription.newElement(
-                                    migrationBlueprint.getName(), changeSet.getId(), changeSet.getAuthor(),
-                                    changeSet.getContexts(), true);
+                                    migrationBlueprint.getName(),
+                                    changeSet.getId(),
+                                    changeSet.getAuthor(),
+                                    changeSet.getContexts().getContexts(),
+                                    true
+                            );
                         }
                     }
                     return migrationDescription;
@@ -118,8 +128,7 @@ public class LiquibaseMigrationBundleFactory implements DatabaseMigrationBundleF
         }
     }
 
-    private <Type> Type commandExecutor(DatabaseCommand<Type> command,
-                                        LiquibaseMigrationBlueprint migrationBlueprint) throws DatabaseMigrationException {
+    private <Type> Type commandExecutor(DatabaseCommand<Type> command, LiquibaseMigrationBlueprint migrationBlueprint) throws DatabaseMigrationException {
         try {
             LiquibaseConfiguration config = reader.readConfiguration();
             Database database = loadDatabase(config);
@@ -129,12 +138,7 @@ public class LiquibaseMigrationBundleFactory implements DatabaseMigrationBundleF
 
             DatabaseChangeLog changeLog = migrationBlueprint.loadDatabaseChangelogWith(changeLogParameters);
 
-            database.reset();
-
-            database.checkDatabaseChangeLogTable(true, changeLog, config.getSplittedContextsAsArray());
-            if (!LockService.getInstance(database).hasChangeLogLock()) {
-                database.checkDatabaseChangeLogLockTable();
-            }
+            database.resetInternalState();
 
             changeLog.validate(database, config.getContexts());
             List<ChangeSet> unranChangeSetList = changeLog.getChangeSets();
@@ -145,24 +149,28 @@ public class LiquibaseMigrationBundleFactory implements DatabaseMigrationBundleF
     }
 
     private interface DatabaseCommand<Type> {
-        Type executeCommand(List<ChangeSet> unranChangeSetList, Database database, DatabaseChangeLog changeLog)
-                throws Exception;
+        Type executeCommand(List<ChangeSet> unranChangeSetList, Database database, DatabaseChangeLog changeLog) throws Exception;
     }
 
-    private void applyConfigurationToChangeLogParameters(ChangeLogParameters changeLogParameters,
-                                                         LiquibaseConfiguration config) {
+    private void applyConfigurationToChangeLogParameters(ChangeLogParameters changeLogParameters, LiquibaseConfiguration config) {
         List<Map.Entry<String, Object>> parameters = config.getParameters();
         for (Map.Entry<String, Object> parameter : parameters) {
             changeLogParameters.set(parameter.getKey(), parameter.getValue());
         }
-        changeLogParameters.setContexts(config.getSplittedContexts());
+        changeLogParameters.setContexts(new Contexts(config.getSplittedContexts()));
     }
 
     private Database loadDatabase(LiquibaseConfiguration config) throws DatabaseException, SQLException {
-        LogFactory.getLogger().setLogLevel(LogLevel.valueOf(config.getLogLvl()));
-        Database database = DatabaseFactory.getInstance().
-                findCorrectDatabaseImplementation(new JdbcConnection(
-                        connectionFactory.loadConnection(config.getDataSource())));
+        LogFactory.getInstance().setDefaultLoggingLevel(
+                LogLevel.valueOf(config.getLogLvl())
+        );
+        Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(
+                new JdbcConnection(
+                        connectionFactory.loadConnection(
+                                config.getDataSource()
+                        )
+                )
+        );
 
         String defaultSchemaName = config.getDefaultSchemaName();
         if (defaultSchemaName != null && defaultSchemaName.length() > 0) {
@@ -171,4 +179,5 @@ public class LiquibaseMigrationBundleFactory implements DatabaseMigrationBundleF
 
         return database;
     }
+
 }

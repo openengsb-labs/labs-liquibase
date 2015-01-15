@@ -16,17 +16,19 @@
  */
 package org.openengsb.labs.liquibase.extender.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.DatabaseChangeLog;
 import liquibase.exception.LiquibaseException;
 import liquibase.parser.ChangeLogParserFactory;
 import liquibase.resource.ResourceAccessor;
 import org.osgi.framework.Bundle;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.Enumeration;
 
 public class LiquibaseMigrationBlueprint {
 
@@ -69,19 +71,22 @@ public class LiquibaseMigrationBlueprint {
 
     private ResourceAccessor loadResourceAccessorForBlueprint() {
         return new ResourceAccessor() {
+
             @Override
-            public InputStream getResourceAsStream(String file) throws IOException {
-                URL entry = bundle.getEntry(file);
+            public Set<InputStream> getResourcesAsStream(String path) throws IOException {
+                final URL entry = bundle.getEntry(path);
                 if (entry == null) {
                     return null;
                 }
-                return entry.openStream();
+                return new HashSet<InputStream>() {{
+                    add(entry.openStream());
+                }};
             }
 
             @Override
-            public Enumeration<URL> getResources(String packageName) throws IOException {
+            public Set<String> list(String relativeTo, String path, boolean includeFiles, boolean includeDirectories, boolean recursive) throws IOException {
                 // no other resources are expected to be loaded from this bundle.
-                return null;
+                return new HashSet<>();
             }
 
             @Override
@@ -97,6 +102,7 @@ public class LiquibaseMigrationBlueprint {
                     }
                 };
             }
+
         };
     }
 
