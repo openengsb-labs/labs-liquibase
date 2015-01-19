@@ -28,6 +28,10 @@
                         <!-- Those additional dependencies are for some rare cases if using an old pax-wicket version... -->
                         <Import-Package>
                             liquibase.*,
+                            <!-- These two packages need to be added, since they are load with ClassForName. -->
+                            org.yaml.snakeyaml.representer;version="[1,2)",
+                            org.junit.experimental.theories;version="[4,5)",
+
                             net.sf.cglib.proxy;version="[2,3)";resolution:=optional,
                             net.sf.cglib.core;version="[2,3)";resolution:=optional,
                             net.sf.cglib.reflect;version="[2,3)";resolution:=optional,
@@ -54,12 +58,15 @@
         <!-- LIQUIBASE DEPENDENCIES -->
         <dependency>
             <groupId>org.liquibase</groupId>
-            <artifactId>liquibase-core</artifactId>
+            <artifactId>liquibase-osgi</artifactId>
         </dependency>
-        <!-- LOGGING DEPENDENCIES -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.bundles</groupId>
+            <artifactId>org.apache.servicemix.bundles.junit</artifactId>
         </dependency>
         <!-- TEST DEPENDENCIES -->
         <dependency>

@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import liquibase.Contexts;
+import liquibase.changelog.ChangeLogHistoryService;
+import liquibase.changelog.ChangeLogHistoryServiceFactory;
 import liquibase.changelog.ChangeLogParameters;
 import liquibase.changelog.ChangeSet;
 import liquibase.changelog.DatabaseChangeLog;
@@ -133,11 +135,13 @@ public class LiquibaseMigrationBundleFactory implements DatabaseMigrationBundleF
             LiquibaseConfiguration config = reader.readConfiguration();
             Database database = loadDatabase(config);
 
+            // instantiates changelog tables
+            ChangeLogHistoryServiceFactory.getInstance().getChangeLogService(database).init();
+
             ChangeLogParameters changeLogParameters = new ChangeLogParameters(database);
             applyConfigurationToChangeLogParameters(changeLogParameters, config);
 
             DatabaseChangeLog changeLog = migrationBlueprint.loadDatabaseChangelogWith(changeLogParameters);
-
             database.resetInternalState();
 
             changeLog.validate(database, config.getContexts());
