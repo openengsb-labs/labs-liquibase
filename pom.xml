@@ -17,8 +17,10 @@
     <packaging>pom</packaging>
 
     <properties>
-        <liquibase.version>2.0.5</liquibase.version>
+        <liquibase.version>3.3.2</liquibase.version>
         <slf4j.version>1.7.7</slf4j.version>
+        <snakeyaml.version>1.14</snakeyaml.version>
+        <junit.bundle.version>4.11_2</junit.bundle.version>
     </properties>
 
     <scm>
@@ -123,23 +125,35 @@
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
-                <version>4.2.0</version>
+                <version>5.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
-                <version>4.2.0</version>
+                <version>5.0.0</version>
             </dependency>
             <!-- Liquibase References -->
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
                 <version>${liquibase.version}</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-osgi</artifactId>
                 <version>${liquibase.version}</version>
+            </dependency>
+            <!-- Utility Dependencies -->
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>${snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.junit</artifactId>
+                <version>${junit.bundle.version}</version>
             </dependency>
             <!-- LOG DEPENDENCIES -->
             <dependency>

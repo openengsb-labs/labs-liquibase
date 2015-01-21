@@ -26,6 +26,9 @@
 
   <feature name="liquibase-extender" version="${project.version}">
     <feature>liquibase-core</feature>
+
+    <bundle>mvn:org.yaml/snakeyaml/${snakeyaml.version}</bundle>
+    <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.junit/${junit.bundle.version}</bundle>
     <bundle>mvn:org.openengsb.labs.liquibase/org.openengsb.labs.liquibase.extender/${project.version}</bundle>
   </feature>
 
