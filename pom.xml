@@ -17,7 +17,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <liquibase.version>3.3.2</liquibase.version>
+        <liquibase.version>3.4.1</liquibase.version>
         <slf4j.version>1.7.7</slf4j.version>
         <snakeyaml.version>1.14</snakeyaml.version>
         <junit.bundle.version>4.11_2</junit.bundle.version>
