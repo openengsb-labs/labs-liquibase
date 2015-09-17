@@ -138,3 +138,7 @@ void executeMigration() throws DatabaseMigrationException;
  */
 MigrationDescription printMigrationDescription() throws DatabaseMigrationException;
 </pre>
+
+Release
+============
+To release this repository do a mvn release:prepare; git push; git push --tags; mvn release:perform.
